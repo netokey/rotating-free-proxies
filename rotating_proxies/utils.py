@@ -1,8 +1,14 @@
 from __future__ import absolute_import
+
+import logging
+
 try:
     from urllib2 import _parse_proxy
 except ImportError:
     from urllib.request import _parse_proxy
+
+
+logger = logging.getLogger(__name__)
 
 
 def extract_proxy_hostport(proxy):
@@ -25,3 +31,57 @@ def extract_proxy_hostport(proxy):
     'baz:1234'
     """
     return _parse_proxy(proxy)[3]
+
+
+def fetch_new_proxies(proxy_path):
+    logger.warning(f"Fetching new proxies; dumping location = {proxy_path}")
+    import requests
+    from bs4 import BeautifulSoup
+    import socket
+
+    MAXIMUM_LIST_EXPECTED = 20
+
+    def get_soup(url):
+        return BeautifulSoup(requests.get(url).text)
+
+    soup = get_soup("https://free-proxy-list.net/")
+    trs = soup.find_all("tr")
+
+    def validate_ip(addr):
+        try:
+            socket.inet_aton(addr)
+            return True
+        except socket.error:
+            return False
+
+    def validate_port(port):
+        return str(port).isdigit() and 1000 < int(port) < 99999
+
+    proxies = list()
+
+    logger.warning(f"Total proxies listed in source webpage={len(trs)}")
+    for tr in trs:
+        tds = tr.find_all("td")
+        if tds:
+            ip = tds[0].text
+            if not validate_ip(ip):
+                continue
+            port = tds[1].text
+            if not validate_port(port):
+                continue
+            if "elite" not in tds[4].text:
+                continue
+            if "minutes" in tds[-1].text:
+                continue
+            protocol = "https" if "yes" in tds[6].text.strip() else "http"
+            proxy = f"{protocol}://{ip}:{port}"
+            proxies.append(proxy)
+            if len(proxies) > MAXIMUM_LIST_EXPECTED:
+                break
+
+    with open(proxy_path, "w") as f:
+        logger.warning(
+            f"updating list of proxies ({len(proxies)}) to location {proxy_path}"
+        )
+        f.write("\n".join(proxies))
+    return proxies

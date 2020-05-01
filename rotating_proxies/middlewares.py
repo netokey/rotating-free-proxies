@@ -65,7 +65,8 @@ class RotatingProxyMiddleware(object):
     """
     def __init__(self, proxy_list, logstats_interval, stop_if_no_proxies,
                  max_proxies_to_try, backoff_base, backoff_cap, crawler):
-
+        self.backoff_base = backoff_base
+        self.backoff_cap = backoff_cap
         backoff = partial(exp_backoff_full_jitter, base=backoff_base, cap=backoff_cap)
         self.proxies = Proxies(self.cleanup_proxy_list(proxy_list),
                                backoff=backoff)
@@ -78,9 +79,9 @@ class RotatingProxyMiddleware(object):
     @classmethod
     def from_crawler(cls, crawler):
         s = crawler.settings
-        proxy_path = s.get('ROTATING_PROXY_LIST_PATH', None)
-        if proxy_path is not None:
-            with codecs.open(proxy_path, 'r', encoding='utf8') as f:
+        cls.proxy_path = s.get('ROTATING_PROXY_LIST_PATH', None)
+        if cls.proxy_path is not None:
+            with codecs.open(cls.proxy_path, 'r', encoding='utf8') as f:
                 proxy_list = [line.strip() for line in f if line.strip()]
         else:
             proxy_list = s.getlist('ROTATING_PROXY_LIST')
@@ -131,6 +132,13 @@ class RotatingProxyMiddleware(object):
                             "as unchecked")
                 self.proxies.reset()
                 proxy = self.proxies.get_random()
+                from .utils import fetch_new_proxies
+                proxy_list = fetch_new_proxies(self.proxy_path)
+                backoff = partial(exp_backoff_full_jitter, base=self.backoff_base,
+                                  cap=self.backoff_cap)
+
+                self.proxies = Proxies(self.cleanup_proxy_list(proxy_list),
+                                       backoff=backoff)
                 if proxy is None:
                     logger.error("No proxies available even after a reset.")
                     raise CloseSpider("no_proxies_after_reset")
