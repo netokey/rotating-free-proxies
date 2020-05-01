@@ -20,14 +20,14 @@ def get_long_description():
 
 
 setup(
-    name='scrapy-rotating-proxies',
+    name='scrapy-rotating-free-proxies',
     version=get_version(),
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',
     license='MIT license',
     long_description=get_long_description(),
     description="Rotating proxies for Scrapy",
-    url='https://github.com/TeamHG-Memex/scrapy-rotating-proxies',
+    url='https://github.com/nabinkhadka/scrapy-rotating-free-proxies',
     packages=find_packages(exclude=['tests']),
     install_requires=[
         'attrs > 16.0.0',
