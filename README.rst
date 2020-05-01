@@ -1,7 +1,8 @@
 scrapy-rotating-free-proxies
 =======================
 This is forked from this_
-.. _this: https://pypi.python.org/pypi/scrapy-rotating-free-proxies with very minor changes. 
+
+.. _this: https://pypi.python.org/pypi/scrapy-rotating-free-proxies with very minor changes.
 
 You don't need to specify any proxy list anywhere. This library automatically fetches freely available lists from here_
 
