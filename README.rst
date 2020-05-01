@@ -8,6 +8,7 @@ This is an extension to the amazing scrapy-rotating-proxies_ library this with v
 
 Installation
 ------------
+::
 
     pip install scrapy-rotating-free-proxies
 
