@@ -1,12 +1,10 @@
 scrapy-rotating-free-proxies
-=======================
-This is forked from this_
+============================
+This is an extension to the amazing scrapy-rotating-proxies_ library this with very minor changes. The main target of this library is to get proxies dynamically when the scraper is running. This library automatically fetches freely available lists of proxies from free-proxy-list.net_.
 
-.. _this: https://pypi.python.org/pypi/scrapy-rotating-free-proxies with very minor changes.
+.. _scrapy-rotating-proxies: https://pypi.python.org/pypi/scrapy-rotating-free-proxies
+.. _free-proxy-list.net: https://free-proxy-list.net/
 
-You don't need to specify any proxy list anywhere. This library automatically fetches freely available lists from here_
-
-.. _here: https://free-proxy-list.net/
 
 Installation
 ------------
@@ -16,23 +14,21 @@ Installation
 Usage
 -----
 
-Add the following two variables in settings.py of scrapy project
-
-1.
-   ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt'
+After installing you need to do just add following two variables in settings.py of your Scrapy project ::
 
 
-2.
+    ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt'
 
     DOWNLOADER_MIDDLEWARES = {
-        # ...
         'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
         'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
-        # ...
     }
 
 
-For further details on using this library, refer to the original repo's _readme file.
+
+For further details on using this library, refer to the original readme_.
 
 .. _readme: https://github.com/TeamHG-Memex/scrapy-rotating-proxies/blob/master/README.rst
 
+
+Thank you!
