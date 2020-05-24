@@ -19,7 +19,7 @@ Usage
 After installing you need to do just add following two variables in settings.py of your Scrapy project ::
 
 
-    ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt'
+    ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt' # THIS WILL BE USED TO SAVE LIST OF PROXIES.
 
     DOWNLOADER_MIDDLEWARES = {
         'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
