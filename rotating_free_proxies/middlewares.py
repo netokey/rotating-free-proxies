@@ -90,10 +90,8 @@ class RotatingProxyMiddleware(object):
         s = crawler.settings
         cls.proxy_path = s.get("ROTATING_PROXY_LIST_PATH", None)
         if cls.proxy_path is not None:
-            if not pathlib.Path(cls.proxy_path).is_file():
-                from .utils import fetch_new_proxies
-
-                proxy_list = fetch_new_proxies(cls.proxy_path, s.get("NUMBER_OF_PROXIES_TO_FETCH"))
+            from .utils import fetch_new_proxies
+            proxy_list = fetch_new_proxies(cls.proxy_path, s.get("NUMBER_OF_PROXIES_TO_FETCH"))
         else:
             proxy_list = s.getlist("ROTATING_PROXY_LIST")
         if not proxy_list:
