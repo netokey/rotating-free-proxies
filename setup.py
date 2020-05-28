@@ -17,14 +17,14 @@ def get_long_description():
 
 
 setup(
-    name="scrapy-rotating-free-proxies",
+    name="rotating-free-proxies",
     version=get_version(),
     author="Nabin Khadka",
     author_email="nbnkhadka14@gmail.com",
     license="MIT license",
     long_description=get_long_description(),
     description="Rotating proxies for Scrapy",
-    url="https://github.com/nabinkhadka/scrapy-rotating-free-proxies",
+    url="https://github.com/nabinkhadka/rotating-free-proxies",
     packages=find_packages(exclude=["tests"]),
     install_requires=[
         "attrs > 16.0.0",
