@@ -33,13 +33,11 @@ def extract_proxy_hostport(proxy):
     return _parse_proxy(proxy)[3]
 
 
-def fetch_new_proxies(proxy_path):
+def fetch_new_proxies(proxy_path, max_number_of_proxies):
     logger.warning(f"Fetching new proxies; dumping location = {proxy_path}")
     import requests
     from bs4 import BeautifulSoup
     import socket
-
-    MAXIMUM_LIST_EXPECTED = 20
 
     def get_soup(url):
         return BeautifulSoup(requests.get(url).text)
@@ -76,12 +74,12 @@ def fetch_new_proxies(proxy_path):
             protocol = "https" if "yes" in tds[6].text.strip() else "http"
             proxy = f"{protocol}://{ip}:{port}"
             proxies.append(proxy)
-            if len(proxies) > MAXIMUM_LIST_EXPECTED:
+            if len(proxies) > max_number_of_proxies:
                 break
 
     with open(proxy_path, "w") as f:
         logger.warning(
             f"updating list of proxies ({len(proxies)}) to location {proxy_path}"
         )
-        f.write("\n".join(proxies))
+        f.write("\n".join(proxies) + "\n")
     return proxies

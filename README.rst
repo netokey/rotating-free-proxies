@@ -18,11 +18,12 @@ Usage
 After installing you need to do just add following two variables in settings.py of your Scrapy project ::
 
 
-    ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt'
+    ROTATING_PROXY_LIST_PATH = '/my/path/proxies.txt' # Path to store list of proxies
+    NUMBER_OF_PROXIES_TO_FETCH = 5 # Controls how many proxies to use
 
     DOWNLOADER_MIDDLEWARES = {
-        'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
-        'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
+        'rotating_free_proxies.middlewares.RotatingProxyMiddleware': 610,
+        'rotating_free_proxies.middlewares.BanDetectionMiddleware': 620,
     }
 
 
