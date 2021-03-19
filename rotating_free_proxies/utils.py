@@ -45,10 +45,16 @@ def fetch_new_proxies(proxy_path, max_number_of_proxies):
     # soup = get_soup("https://free-proxy-list.net/")
     # trs = soup.find_all("tr")
 
-    proxies = list()
+    proxies_set = set()
 
-    while len(proxies) < max_number_of_proxies:
-        proxies.extend(fetch_proxies_from_66pm(driver=driver))
+    not_enough_proxies = False
+    last_num_proxies = 0
+    while len(proxies_set) < max_number_of_proxies and not not_enough_proxies:
+        proxies_set |= set(fetch_proxies_from_66pm(driver=driver))
+        if len(proxies_set) == last_num_proxies:
+            not_enough_proxies = True
+            logger.warning(f'We can only get {len(proxies_set)} proxies.')
+        last_num_proxies = len(proxies_set)
     driver.close()
 
     # for tr in trs:
@@ -70,7 +76,7 @@ def fetch_new_proxies(proxy_path, max_number_of_proxies):
     #         if len(proxies) > max_number_of_proxies:
     #             break
 
-    proxies = proxies[:max_number_of_proxies]
+    proxies = list(proxies_set)[:max_number_of_proxies]
 
     with open(proxy_path, "w") as f:
         logger.warning(
@@ -86,10 +92,9 @@ def fetch_proxies_from_66pm(driver):
 
     from bs4 import BeautifulSoup
 
-    # the maximum number of proxies is 300
-    url_66 = ('http://www.66ip.cn/nmtq.php?getnum=300&isp=0&anonymoustype=0' +
-              '&start=&ports=&export=&ipaddress=&area=1&proxytype=1&api=66ip')
-    driver.get(url=url_66)
+    # get 300 http proxies each time 
+    url_66_http = 'http://www.66ip.cn/mo.php?sxb=&tqsl=300&port=&export=&ktip=&sxa='
+    driver.get(url=url_66_http)
 
     soup = BeautifulSoup(driver.page_source, features='lxml')
     r = re.compile('([0-9.:]+?)\n')
