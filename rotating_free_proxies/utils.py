@@ -35,15 +35,65 @@ def extract_proxy_hostport(proxy):
 
 def fetch_new_proxies(proxy_path, max_number_of_proxies):
     logger.warning(f"Fetching new proxies; dumping location = {proxy_path}")
-    import requests
-    from bs4 import BeautifulSoup
+    from selenium import webdriver
+
+    # def get_soup(url):
+    # return BeautifulSoup(requests.get(url).text)
+
+    driver = webdriver.Firefox()
+
+    # soup = get_soup("https://free-proxy-list.net/")
+    # trs = soup.find_all("tr")
+
+    proxies = list()
+
+    while len(proxies) < max_number_of_proxies:
+        proxies.extend(fetch_proxies_from_66pm(driver=driver))
+    driver.close()
+
+    # for tr in trs:
+    #     tds = tr.find_all("td")
+    #     if tds:
+    #         ip = tds[0].text
+    #         if not validate_ip(ip):
+    #             continue
+    #         port = tds[1].text
+    #         if not validate_port(port):
+    #             continue
+    #         if "elite" not in tds[4].text:
+    #             continue
+    #         if "minutes" in tds[-1].text:
+    #             continue
+    #         protocol = "https" if "yes" in tds[6].text.strip() else "http"
+    #         proxy = f"{protocol}://{ip}:{port}"
+    #         proxies.append(proxy)
+    #         if len(proxies) > max_number_of_proxies:
+    #             break
+
+    proxies = proxies[:max_number_of_proxies]
+
+    with open(proxy_path, "w") as f:
+        logger.warning(
+            f"updating list of proxies ({len(proxies)}) to location {proxy_path}"
+        )
+        f.write("\n".join(proxies) + "\n")
+    return proxies
+
+
+def fetch_proxies_from_66pm(driver):
+    import re
     import socket
 
-    def get_soup(url):
-        return BeautifulSoup(requests.get(url).text)
+    from bs4 import BeautifulSoup
 
-    soup = get_soup("https://free-proxy-list.net/")
-    trs = soup.find_all("tr")
+    # the maximum number of proxies is 300
+    url_66 = ('http://www.66ip.cn/nmtq.php?getnum=300&isp=0&anonymoustype=0' +
+              '&start=&ports=&export=&ipaddress=&area=1&proxytype=1&api=66ip')
+    driver.get(url=url_66)
+
+    soup = BeautifulSoup(driver.page_source, features='lxml')
+    r = re.compile('([0-9.:]+?)\n')
+    trs = r.findall(soup.text)
 
     def validate_ip(addr):
         try:
@@ -58,28 +108,14 @@ def fetch_new_proxies(proxy_path, max_number_of_proxies):
     proxies = list()
 
     logger.warning(f"Total proxies listed in source webpage={len(trs)}")
-    for tr in trs:
-        tds = tr.find_all("td")
-        if tds:
-            ip = tds[0].text
-            if not validate_ip(ip):
-                continue
-            port = tds[1].text
-            if not validate_port(port):
-                continue
-            if "elite" not in tds[4].text:
-                continue
-            if "minutes" in tds[-1].text:
-                continue
-            protocol = "https" if "yes" in tds[6].text.strip() else "http"
-            proxy = f"{protocol}://{ip}:{port}"
-            proxies.append(proxy)
-            if len(proxies) > max_number_of_proxies:
-                break
 
-    with open(proxy_path, "w") as f:
-        logger.warning(
-            f"updating list of proxies ({len(proxies)}) to location {proxy_path}"
-        )
-        f.write("\n".join(proxies) + "\n")
+    for tr in trs:
+        ip, port = tr.split(':')
+        if not validate_ip(ip):
+            continue
+        if not validate_port(port):
+            continue
+        proxy = f'{ip}:{port}'
+        proxies.append(proxy)
+
     return proxies

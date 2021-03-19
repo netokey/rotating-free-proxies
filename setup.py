@@ -32,6 +32,7 @@ setup(
         "typing",
         "beautifulsoup4==4.8.2",
         "requests",
+        "selenium",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
